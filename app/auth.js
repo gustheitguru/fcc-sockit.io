@@ -1,7 +1,7 @@
-const session     = require('express-session');
-const mongo       = require('mongodb').MongoClient;
-const passport    = require('passport');
-const GitHubStrategy = require('passport-github').Strategy;
+const session         = require('express-session');
+const mongo           = require('mongodb').MongoClient;
+const passport        = require('passport');
+const GitHubStrategy  = require('passport-github').Strategy;
 
 module.exports = function (app, db) {
   
@@ -24,17 +24,17 @@ module.exports = function (app, db) {
     passport.use(new GitHubStrategy({
         clientID: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
-        callbackURL: "https://buttercup-delete.gomix.me/auth/github/callback"
+        callbackURL: "https://gustheitguru-fcc-sockitio.glitch.me/auth/github/callback"
       },
       function(accessToken, refreshToken, profile, cb) {
           db.collection('chatusers').findAndModify(
-              {id: profile.id},
+              {id: profile.id}, 
               {},
               {$setOnInsert:{
                   id: profile.id,
                   name: profile.displayName || 'Anonymous',
                   photo: profile.photos[0].value || '',
-                  email: profile.emails[0].value || 'No public email',
+                  email: profile.email|| 'No public email',
                   created_on: new Date(),
                   provider: profile.provider || '',
                   chat_messages: 0
@@ -45,7 +45,7 @@ module.exports = function (app, db) {
               }},
               {upsert:true, new: true}, //Insert object if not found, Return new object after modify
               (err, doc) => {
-                  return cb(null, doc.value);
+                  return cb(null, doc);
               }
           );
         }
